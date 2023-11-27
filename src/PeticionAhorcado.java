@@ -54,7 +54,7 @@ public class PeticionAhorcado extends Thread{
 					System.out.println("Estado de la palabra oculta: " + palabraOculta);
 					out.writeBytes("La letra " + letra + " es correcta. Tienes " + intentos + " intentos. La palabra oculta es: "+palabraOculta + "\n");
 //					out.writeBytes("Introduce una letra:\n");
-					out.flush();
+					//out.flush();
 					
 				}
 				else {
