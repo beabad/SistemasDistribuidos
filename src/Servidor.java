@@ -20,23 +20,6 @@ public class Servidor {
 					pa.start();
 				}
 
-				//PRUEBA PARA VER SI LEE ALGO
-				/*try(Socket s = ss.accept();
-					DataInputStream in = new DataInputStream(s.getInputStream());
-					Writer out = new OutputStreamWriter(s.getOutputStream()))
-				{
-					System.out.println("La linea es:");
-					String linea = in.readLine();
-					System.out.println("La linea es:" + linea);
-					while(linea!=null) {
-						out.write("Recibido\n");
-						out.flush();
-						linea = in.readLine();
-						
-					}
-					
-					
-				}*/
 				catch (IOException e){
 					e.printStackTrace();
 				}
