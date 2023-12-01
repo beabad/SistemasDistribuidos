@@ -1,7 +1,15 @@
+import java.io.BufferedReader;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
+import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.net.Socket;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Random;
+import java.util.Scanner;
 
 public class PeticionAhorcado extends Thread{
 	
@@ -15,83 +23,123 @@ public class PeticionAhorcado extends Thread{
 	public void run() {
 		try(DataInputStream in = new DataInputStream(s.getInputStream());
 			DataOutputStream out = new DataOutputStream(s.getOutputStream());
-			DataInputStream teclado = new DataInputStream(System.in);)
+			BufferedReader br= new BufferedReader(new InputStreamReader(new FileInputStream("./src/palabras.txt")));)
+			//DataInputStream teclado = new DataInputStream(System.in);)
 		{
-			System.out.println("Bienvenido al juego del Ahorcado\n");
-			System.out.println("-----------------------------------");
-			System.out.println("Introduce una palabra:");
-			String palabra = teclado.readLine().toLowerCase();//Transformamos la letra a miniscula.
-//			palabra=palabra.toLowerCase();
-			int numLetras = palabra.length();
-			int numEspacios=0;
+			boolean salir = false;
+		    String opcion;
+
+		    while(!salir){
+
+		    	   System.out.println("Vuelvo a entrar");
+		           opcion = in.readLine();
+		           
+		           //System.out.println(opcion);
+		           
+		           switch(opcion.trim()){
+		               case "1":
+		            	 
+		       			List<String> palabras = new ArrayList<String>(); //creamos una lista con las palabras del fichero palabra.txt
+		       			String linea = br.readLine();
+		       			while (linea!=null) {
+		       				palabras.add(linea);
+		       				linea = br.readLine();
+		       			}
+		       			
+		       			Random random = new Random();
+		       			int indice = random.nextInt(palabras.size());
+		       			String palabra = palabras.get(indice).toLowerCase();//Transformamos la letra a miniscula.
+
+		       			//String palabra = teclado.readLine().toLowerCase();
+
+		       			int numLetras = palabra.length();
+		       			int numEspacios=0;
+		       			
+		       			String palabraOculta = "";// en este bucle creamos la palabra oculta con guiones
+		       			for(int i=0; i<numLetras; i++) {
+		       				if(palabra.charAt(i) == (" ").charAt(0)){
+		       					palabraOculta = palabraOculta + " ";
+		       					numEspacios++;
+		       				}
+		       				else {
+		       					palabraOculta = palabraOculta + "-";
+		       				}
+		       			}
+		       			
+		       			
+		       			int intentos = 5;
+		       				
+		       			out.writeBytes("La palabra a adivinar tiene " + (numLetras-numEspacios) + " letras. Tienes " + intentos + " intentos. La palabra oculta es: "+palabraOculta+"\n");//1
+		       			out.flush();
+		       			while (palabraOculta.contains("-") && intentos>0) {
+		       				
+		       				out.writeBytes("Introduce una letra:\n");//2
+		       				out.flush();
+		       				String letra = in.readLine();//3
+		       				
+		       				
+		       				if(Character.isLetter(letra.charAt(0))&&(letra.length()==1)) {//hay que introducir solo una letra
+		       					if(palabra.contains(letra)) {
+		       						StringBuilder sb = new StringBuilder(palabraOculta);
+		       						
+		       						if(palabraOculta.contains(letra)) {//Vemos si la letra está en la palabra.
+		       							intentos--;
+		       							out.writeBytes("La letra " + letra + " ya está. Tienes " + intentos + " intentos. La palabra oculta es: "+palabraOculta + "\n");
+		       							out.flush();
+		       							
+		       						}
+		       						else {//sino la añade
+		       							for(int i=0; i<numLetras; i++) {
+		       								if(palabra.charAt(i) == letra.charAt(0)){
+		       									sb.setCharAt(i, letra.charAt(0));
+		       									
+		       								}
+		       							}
+		       							palabraOculta = sb.toString();
+		       							
+		       							if(palabraOculta.equals(palabra)) {	//si ya has acertado la palabra
+		       								out.writeBytes("La letra " + letra + " es correcta. La palabra oculta es: "+palabraOculta + ".	¡¡HAS GANADO!!\n");
+		       								out.flush();
+		       								//System.out.println("entra");
+		       							}
+		       							else {	//si faltan letras por adivinar
+		       								out.writeBytes("La letra " + letra + " es correcta. Tienes " + intentos + " intentos. La palabra oculta es: "+palabraOculta + "\n");//4
+		       								out.flush();
+		       							}
+		       						}		
+		       					}
+		       					else {
+		       						intentos--;
+		       						if(intentos==0) {//Si gastamos los intentos el juego termina
+		       							out.writeBytes("La letra " + letra + " es incorrecta. ¡¡Lo siento. Has perdido!!, la palabra es: " + palabra + "\n");
+		       							out.flush();
+		       						}else {	//aun quedan intentos, el juego continua
+		       							out.writeBytes("La letra " + letra + " es incorrecta. Tienes " + intentos + " intentos. La palabra oculta es: "+palabraOculta + "\n");
+		       							out.flush();
+		       						}
+		       						
+		       						
+		       					}
+		       				}
+		       				else {
+		       					out.writeBytes("ERROR: Introduce otra letra.\n");
+		       					out.flush();
+		       				}
+		       			}
+		       			out.writeBytes(" ");
+		       			out.flush();
+		            	//System.out.println("fin");   
+		       			
+  
+		            	//break;//Si comento esto si funciona pero la conexión se anula luego
+		            	   
+		               case "2":
+		            	   salir=true;
+		            	   break;
 			
-			String palabraOculta = "";
-			for(int i=0; i<numLetras; i++) {
-				if(palabra.charAt(i) == (" ").charAt(0)){
-					palabraOculta = palabraOculta + " ";
-					numEspacios++;
-				}
-				else {
-					palabraOculta = palabraOculta + "-";
-				}
-			}
-			System.out.println("Palabra oculta: " + palabraOculta);
-			int intentos = 5;
-			System.out.println("Tu adversario tiene " + intentos + " intentos.\n");		
-			
-			out.writeBytes("La palabra a adivinar tiene " + (numLetras-numEspacios) + " letras.\n");//1
-			out.flush();
-			while (palabraOculta.contains("-") && intentos>0) {
-				
-				out.writeBytes("Introduce una letra:\n");//2
-				out.flush();
-				String letra = in.readLine();//3
-				
-				if(palabra.contains(letra)) {
-					StringBuilder sb = new StringBuilder(palabraOculta);
-					
-					if(palabraOculta.contains(letra)) {//Vemos si la letra está en la palabra.
-						intentos--;
-						out.writeBytes("La letra " + letra + " ya está. Tienes " + intentos + " intentos. La palabra oculta es: "+palabraOculta + "\n");
-						out.flush();
-						System.out.println("Estado de la palabra oculta: " + palabraOculta);
-					}
-					else {//sino la añade
-						for(int i=0; i<numLetras; i++) {
-							if(palabra.charAt(i) == letra.charAt(0)){
-								sb.setCharAt(i, letra.charAt(0));
-								//palabraOculta = palabraOculta.replace(palabra.charAt(i), letra.charAt(0));
-							}
-						}
-						palabraOculta = sb.toString();
-						System.out.println("Estado de la palabra oculta: " + palabraOculta);
-						if(palabraOculta.equals(palabra)) {	//si ya has acertado la palabra
-							out.writeBytes("La letra " + letra + " es correcta. La palabra oculta es: "+palabraOculta + ".	¡¡HAS GANADO!!\n");
-							out.flush();
-						}
-						else {	//si faltan letras por adivinar
-							out.writeBytes("La letra " + letra + " es correcta. Tienes " + intentos + " intentos. La palabra oculta es: "+palabraOculta + "\n");//4
-							out.flush();
-						}
-					}		
-				}
-				else {
-					intentos--;
-					if(intentos==0) {//Si gastamos los intentos el juego termina
-						out.writeBytes("La letra " + letra + " es incorrecta. ¡¡Lo siento. Has perdido!!, la palabra es: " + palabra + "\n");
-						out.flush();
-					}else {	//aun quedan intentos, el juego continua
-						out.writeBytes("La letra " + letra + " es incorrecta. Tienes " + intentos + " intentos. La palabra oculta es: "+palabraOculta + "\n");
-						out.flush();
-					}
-					
-					
-				}
-				
-			}
-			out.writeBytes(" ");
-			out.flush();
-			
+		           }
+		    }
+			//
 		} catch (IOException e){
 			e.printStackTrace();
 		} 
