@@ -18,18 +18,20 @@ public class Cliente {
 			
 			boolean salir = false;
 		    String opcion;
-		    //long mejorTiempo = 0;
+		    long mejorTiempo = 1000;
 		    
 		    while(!salir){
-		    	   System.out.println("\n--- Menú ---");
+		    	   System.out.println("\n--- MENÚ ---");
 		           System.out.println("1. Iniciar el juego.");
 		           System.out.println("2. Salir");
 		           
-		           Scanner sc = new Scanner(System.in);
-		           System.out.println("Escribe una de las opciones:");
-		           opcion = sc.nextLine();
+		           
+		           System.out.println("Escribe una opción:");
+		           opcion = teclado.readLine();
 		           out.writeBytes(opcion+"\n");//mando la opcion que he elegido
 		           out.flush();
+		           
+		           //if(Integer.valueOf(opcion)==1) {
 
 		           switch(opcion){
 		               case "1":
@@ -44,31 +46,25 @@ public class Cliente {
 			       			while(linea!=null && !linea.equals(" ")) {
 			       				String letra = teclado.readLine().toLowerCase(); //Transformamos la letra a minuscula.
 			       			
-			       				//System.out.println(linea);
 			       				out.writeBytes(letra+"\n");//3
 			       				out.flush();
 			       				
 			       				System.out.println(in.readLine());//4
 			       				linea = in.readLine();
 			       				System.out.println(linea);
+			       				
 			       			}
-			       			
 			       			System.out.println("-----------------------------------");
 			       			System.out.println("EL JUEGO HA TERMINADO");
 			       			System.out.println("-----------------------------------");
 			       			long tiempo = (System.currentTimeMillis() - tiempoInicial)/1000;
 			       			System.out.println("Has tardado " + tiempo + " segundos.");
 			       			System.out.println("Puedes volver a jugar si lo desea");
-			       			
-			       			//long mejorTiempo = 0;
-			       			/*if(0<=tiempo) {
-			       				mejorTiempo=tiempo;
-			       			}
-			       			
+
 			       			if(mejorTiempo>tiempo) {
 			       				mejorTiempo=tiempo;
 			       			}
-			       			System.out.println("Tu record es: " + mejorTiempo);*/
+			       			System.out.println("Tu record es: " + mejorTiempo);
 		
 		                    break;
 		               
@@ -79,6 +75,9 @@ public class Cliente {
 		                   System.out.println("Solo números entre 1 y 2");
 		            	   
 		           }
+		           /*if(Integer.valueOf(opcion)==2) {
+		        	   salir=true;
+		           }*/
 		           
 		    }
 		} catch (IOException e){

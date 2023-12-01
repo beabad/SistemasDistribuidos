@@ -28,82 +28,77 @@ public class PeticionAhorcado extends Thread{
 		{
 			boolean salir = false;
 		    String opcion;
+		    
+		    List<String> palabras = crearLista(br);
 
 		    while(!salir){
-
-		    	   System.out.println("Vuelvo a entrar");
 		           opcion = in.readLine();
 		           
-		           //System.out.println(opcion);
-		           
+		           //if(Integer.valueOf(opcion)==1) {
 		           switch(opcion.trim()){
 		               case "1":
-		            	 
-		       			List<String> palabras = new ArrayList<String>(); //creamos una lista con las palabras del fichero palabra.txt
-		       			String linea = br.readLine();
-		       			while (linea!=null) {
-		       				palabras.add(linea);
-		       				linea = br.readLine();
-		       			}
 		       			
 		       			Random random = new Random();
 		       			int indice = random.nextInt(palabras.size());
 		       			String palabra = palabras.get(indice).toLowerCase();//Transformamos la letra a miniscula.
 
 		       			//String palabra = teclado.readLine().toLowerCase();
-
-		       			int numLetras = palabra.length();
-		       			int numEspacios=0;
-		       			
-		       			String palabraOculta = "";// en este bucle creamos la palabra oculta con guiones
-		       			for(int i=0; i<numLetras; i++) {
-		       				if(palabra.charAt(i) == (" ").charAt(0)){
-		       					palabraOculta = palabraOculta + " ";
-		       					numEspacios++;
-		       				}
-		       				else {
-		       					palabraOculta = palabraOculta + "-";
-		       				}
-		       			}
-		       			
-		       			
 		       			int intentos = 5;
-		       				
+		       			int numLetras = palabra.length();
+		       			int numEspacios= numEspacios(palabra,numLetras);
+		       			String palabraOculta = palabraOcultaConGuiones(palabra, numLetras);
+		       			
+		       			
 		       			out.writeBytes("La palabra a adivinar tiene " + (numLetras-numEspacios) + " letras. Tienes " + intentos + " intentos. La palabra oculta es: "+palabraOculta+"\n");//1
 		       			out.flush();
+		       			
 		       			while (palabraOculta.contains("-") && intentos>0) {
 		       				
-		       				out.writeBytes("Introduce una letra:\n");//2
+		       				out.writeBytes("Introduce una letra o la palabra:\n");//2
 		       				out.flush();
 		       				String letra = in.readLine();//3
+       								       				
+       						if(igualTamaño(palabra, letra)) {
+		       					
+       							if(palabra.equals(letra)) {
+       								palabraOculta=modificarOcultaEntera(palabraOculta,palabra,numLetras);
+		       						out.writeBytes(mensajeGanarPalabra(letra, palabra));
+		       						out.flush();
+		       					}
+		       					else {
+		       						intentos--;
+		       						if(intentos==0) {//Si gastamos los intentos el juego termina
+		       							out.writeBytes(mensajePerder(letra, palabra, intentos));
+		       							out.flush();
+		       						}else {	//aun quedan intentos, el juego continua
+		       							out.writeBytes(mensajePalabraIncorrecta(letra, palabraOculta, intentos));
+		       							out.flush();
+		       						}
+		       					}
+		       				}
 		       				
-		       				
-		       				if(Character.isLetter(letra.charAt(0))&&(letra.length()==1)) {//hay que introducir solo una letra
+		       				else if(unaLetra(letra)) {//hay que introducir solo una letra
+		       					
 		       					if(palabra.contains(letra)) {
-		       						StringBuilder sb = new StringBuilder(palabraOculta);
 		       						
 		       						if(palabraOculta.contains(letra)) {//Vemos si la letra está en la palabra.
 		       							intentos--;
-		       							out.writeBytes("La letra " + letra + " ya está. Tienes " + intentos + " intentos. La palabra oculta es: "+palabraOculta + "\n");
-		       							out.flush();
-		       							
+		       							if(intentos==0) {//Si gastamos los intentos el juego termina
+			       							out.writeBytes(mensajePerder(letra, palabra, intentos));
+			       							out.flush();
+			       						}else {	//aun quedan intentos, el juego continua
+			       							out.writeBytes(mensajeLetraYaEsta(letra, palabraOculta, intentos));
+			       							out.flush();
+			       						}
 		       						}
 		       						else {//sino la añade
-		       							for(int i=0; i<numLetras; i++) {
-		       								if(palabra.charAt(i) == letra.charAt(0)){
-		       									sb.setCharAt(i, letra.charAt(0));
-		       									
-		       								}
-		       							}
-		       							palabraOculta = sb.toString();
-		       							
+		       							palabraOculta= modificarOculta(palabraOculta,palabra,letra,numLetras);
 		       							if(palabraOculta.equals(palabra)) {	//si ya has acertado la palabra
-		       								out.writeBytes("La letra " + letra + " es correcta. La palabra oculta es: "+palabraOculta + ".	¡¡HAS GANADO!!\n");
+		       								out.writeBytes(mensajeGanar(letra, palabraOculta));
 		       								out.flush();
-		       								//System.out.println("entra");
 		       							}
 		       							else {	//si faltan letras por adivinar
-		       								out.writeBytes("La letra " + letra + " es correcta. Tienes " + intentos + " intentos. La palabra oculta es: "+palabraOculta + "\n");//4
+		       								out.writeBytes(mensajeLetraCorrecta(letra, palabraOculta, intentos));
 		       								out.flush();
 		       							}
 		       						}		
@@ -111,14 +106,12 @@ public class PeticionAhorcado extends Thread{
 		       					else {
 		       						intentos--;
 		       						if(intentos==0) {//Si gastamos los intentos el juego termina
-		       							out.writeBytes("La letra " + letra + " es incorrecta. ¡¡Lo siento. Has perdido!!, la palabra es: " + palabra + "\n");
+		       							out.writeBytes(mensajePerder(letra, palabra, intentos));
 		       							out.flush();
 		       						}else {	//aun quedan intentos, el juego continua
-		       							out.writeBytes("La letra " + letra + " es incorrecta. Tienes " + intentos + " intentos. La palabra oculta es: "+palabraOculta + "\n");
+		       							out.writeBytes(mensajeLetraIncorrecta(letra, palabraOculta, intentos));
 		       							out.flush();
 		       						}
-		       						
-		       						
 		       					}
 		       				}
 		       				else {
@@ -126,12 +119,10 @@ public class PeticionAhorcado extends Thread{
 		       					out.flush();
 		       				}
 		       			}
-		       			out.writeBytes(" ");
+		       			out.writeBytes(" \n");
 		       			out.flush();
-		            	//System.out.println("fin");   
-		       			
-  
-		            	//break;//Si comento esto si funciona pero la conexión se anula luego
+		            	
+		            	break;
 		            	   
 		               case "2":
 		            	   salir=true;
@@ -139,11 +130,126 @@ public class PeticionAhorcado extends Thread{
 			
 		           }
 		    }
-			//
+			
 		} catch (IOException e){
 			e.printStackTrace();
 		} 
 		
+	}
+	
+	
+	private String mensajeLetraYaEsta(String letra, String palabraOculta, Integer intentos) {
+		return("La letra " + letra + " ya está. Tienes " + intentos + " intentos. La palabra oculta es: "+palabraOculta + "\n");
+	}
+	
+	private String mensajeGanarPalabra(String letra, String palabraOculta) {
+		return("La palabra " + letra + " es correcta.	¡¡HAS GANADO!!\n");
+	}
+	
+	private String mensajeGanar(String letra, String palabraOculta) {
+		return("La letra " + letra + " es correcta. La palabra oculta es: "+palabraOculta + ".	¡¡HAS GANADO!!\n");
+	}
+	
+	private String mensajePerder(String letra, String palabra, Integer intentos) {
+		return("La letra " + letra + " es incorrecta. ¡¡Lo siento. Has perdido!! La palabra es: " + palabra + "\n");
+	}
+	
+	private String mensajeLetraCorrecta(String letra, String palabraOculta, Integer intentos) {
+		return("La letra " + letra + " es correcta. Tienes " + intentos + " intentos. La palabra oculta es: "+palabraOculta + "\n");
+	}
+	
+	private String mensajeLetraIncorrecta(String letra, String palabraOculta, Integer intentos) {
+		//intentos--;
+		return("La letra " + letra + " es incorrecta. Tienes " + intentos + " intentos. La palabra oculta es: "+palabraOculta + "\n");
+	}
+	
+	private String mensajePalabraIncorrecta(String palabraIncorrecta, String palabraOculta, Integer intentos) {
+		//intentos--;
+		return("La palabra " + palabraIncorrecta + " es incorrecta. Tienes " + intentos + " intentos. La palabra oculta es: "+palabraOculta + "\n");
+	}
+	
+	
+	public boolean igualTamaño(String palabra, String palabraOculta) {
+		if(palabra.length() == palabraOculta.length()) {
+			return true;
+		}
+		else {
+			return false;
+		}
+	}
+	
+	public boolean unaLetra(String letra) {
+		if(letra.length() == 1 && Character.isLetter(letra.charAt(0))) {
+			return true;
+		}
+		else {
+			return false;
+		}
+	}
+	
+	
+	
+	public String palabraOcultaConGuiones(String palabra, int numLetras) {
+		String palabraOculta="";
+		for(int i=0; i<numLetras; i++) {
+				if(palabra.charAt(i) == (" ").charAt(0)){
+					palabraOculta = palabraOculta + " ";
+				}
+				else {
+					palabraOculta = palabraOculta + "-";
+				}
+		}
+		return palabraOculta;
+	}
+	
+	public Integer numEspacios(String palabra, int numLetras) {
+		int numEspacios=0;
+		for(int i=0; i<numLetras; i++) {
+			if(palabra.charAt(i) == (" ").charAt(0)){
+				numEspacios++;
+			}
+		}
+		return numEspacios;
+	}
+	
+	public List<String> crearLista (BufferedReader br){
+		
+		List<String> palabras = new ArrayList<String>(); //creamos una lista con las palabras del fichero palabra.txt
+		try {
+			String linea = br.readLine();
+			while (linea!=null) {
+				palabras.add(linea);
+				linea = br.readLine();
+			}
+		}
+		catch (IOException e) {
+			e.printStackTrace();
+		}
+		return palabras;
+	}
+	
+	public String modificarOcultaEntera(String palabraOculta, String palabra, int numLetras) {
+		StringBuilder sb1 = new StringBuilder(palabraOculta);
+			for(int i=0; i<numLetras; i++) {
+				for(int j=0; j<numLetras; j++) {
+					if(palabra.charAt(i) == palabra.charAt(j)){
+						sb1.setCharAt(i, palabra.charAt(j));
+					}
+				}
+			}
+		palabraOculta = sb1.toString();
+		return palabraOculta;
+	}
+	
+	public String modificarOculta(String palabraOculta, String palabra, String letra, int numLetras) {
+		StringBuilder sb = new StringBuilder(palabraOculta);
+			for(int i=0; i<numLetras; i++) {
+				if(palabra.charAt(i) == letra.charAt(0)){
+					sb.setCharAt(i, letra.charAt(0));
+				}
+			}
+		palabraOculta = sb.toString();
+		return palabraOculta;
 	}
 
 }
