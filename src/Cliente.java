@@ -13,29 +13,28 @@ public class Cliente {
 				DataOutputStream out = new DataOutputStream(s.getOutputStream());
 				DataInputStream teclado = new DataInputStream(System.in);)
 		{
-
-			System.out.println("Bienvenido al juego del Ahorcado");
-			
+			System.out.println("------------------------------------------");
+			System.out.println("---- BIENVENIDO AL JUEGO DEL AHORCADO ----");
+			System.out.println("------------------------------------------");
 			boolean salir = false;
 		    String opcion;
 		    long mejorTiempo = 1000;
+		    int numPartidas = 0;
 		    
 		    while(!salir){
 		    	   System.out.println("\n--- MENÚ ---");
 		           System.out.println("1. Iniciar el juego.");
 		           System.out.println("2. Salir");
 		           
-		           
-		           System.out.println("Escribe una opción:");
+		           System.out.print("Escribe una opción: ");
 		           opcion = teclado.readLine();
 		           out.writeBytes(opcion+"\n");//mando la opcion que he elegido
 		           out.flush();
 		           
 		           //if(Integer.valueOf(opcion)==1) {
-
-		           switch(opcion){
+		           switch(opcion.trim()){
 		               case "1":
-		                    System.out.println("El juego ha comenzado\n");
+		                    System.out.println("\n¡El juego ha comenzado! \n");
 		                   
 		                    long tiempoInicial = System.currentTimeMillis();
 		                    		       			
@@ -54,36 +53,40 @@ public class Cliente {
 			       				System.out.println(linea);
 			       				
 			       			}
-			       			System.out.println("-----------------------------------");
-			       			System.out.println("EL JUEGO HA TERMINADO");
-			       			System.out.println("-----------------------------------");
+			       		
+			       			numPartidas++;
 			       			long tiempo = (System.currentTimeMillis() - tiempoInicial)/1000;
-			       			System.out.println("Has tardado " + tiempo + " segundos.");
-			       			System.out.println("Puedes volver a jugar si lo desea");
-
+			       			System.out.println("Has tardado " + tiempo + " segundos.\n");
+			       			System.out.println("------------------------------------");
+			       			System.out.println("---- Ha terminado la partida :( ----");
+			       			System.out.println("------------------------------------");
+			       			//System.out.println("Has tardado " + tiempo + " segundos.");
+			       			//numPartidas++;
+			       			//long tiempo = (System.currentTimeMillis() - tiempoInicial)/1000;
 			       			if(mejorTiempo>tiempo) {
 			       				mejorTiempo=tiempo;
 			       			}
-			       			System.out.println("Tu record es: " + mejorTiempo);
-		
+			       			if(numPartidas==1) {
+			       				System.out.println("Llevas " + numPartidas + " partida jugada.");
+			       			}
+			       			else {
+			       				System.out.println("Llevas " + numPartidas + " partidas jugadas. Tu record es " + mejorTiempo + " segundos.");
+			       			}
+			       			//System.out.println("Tu record es: " + mejorTiempo);
+			       			System.out.println("Puedes volver a jugar si lo deseas.");
+			       			
 		                    break;
 		               
 		               case "2":
 		                   salir=true;
 		                   break;
 		               default:
-		                   System.out.println("Solo números entre 1 y 2");
+		                   System.out.println("Opción no válida. Elige otra.");
 		            	   
 		           }
-		           /*if(Integer.valueOf(opcion)==2) {
-		        	   salir=true;
-		           }*/
-		           
 		    }
 		} catch (IOException e){
 			e.printStackTrace();
 		}
-		
 	}
-
 }

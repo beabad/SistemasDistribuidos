@@ -11,7 +11,7 @@ import java.util.concurrent.Executors;
 public class Servidor {
 
 	public static void main(String[] args) {
-		//ExecutorService pool = Executors.newCachedThreadPool();
+		ExecutorService pool = Executors.newCachedThreadPool();
 		try(ServerSocket ss = new ServerSocket(8000)){
 			System.out.println("Servidor funcionando...");
 			while(true) {
@@ -19,16 +19,16 @@ public class Servidor {
 				try{
 					Socket s = ss.accept();
 					PeticionAhorcado pa =new PeticionAhorcado(s);		
-					pa.start();
-					pa.join();
-					//pool.execute(pa);
+					//pa.start();
+					//pa.join();
+					pool.execute(pa);
 				}
 
 				catch (IOException e){
 					e.printStackTrace();
-				} catch (InterruptedException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
+//				} catch (InterruptedException e) {
+//					// TODO Auto-generated catch block
+//					e.printStackTrace();
 				}
 			}
 		}

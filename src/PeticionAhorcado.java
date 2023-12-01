@@ -68,7 +68,7 @@ public class PeticionAhorcado extends Thread{
 		       					else {
 		       						intentos--;
 		       						if(intentos==0) {//Si gastamos los intentos el juego termina
-		       							out.writeBytes(mensajePerder(letra, palabra, intentos));
+		       							out.writeBytes(mensajePerderPalabra(letra, palabra, intentos));
 		       							out.flush();
 		       						}else {	//aun quedan intentos, el juego continua
 		       							out.writeBytes(mensajePalabraIncorrecta(letra, palabraOculta, intentos));
@@ -84,7 +84,7 @@ public class PeticionAhorcado extends Thread{
 		       						if(palabraOculta.contains(letra)) {//Vemos si la letra está en la palabra.
 		       							intentos--;
 		       							if(intentos==0) {//Si gastamos los intentos el juego termina
-			       							out.writeBytes(mensajePerder(letra, palabra, intentos));
+			       							out.writeBytes(mensajePerderLetra(letra, palabra, intentos));
 			       							out.flush();
 			       						}else {	//aun quedan intentos, el juego continua
 			       							out.writeBytes(mensajeLetraYaEsta(letra, palabraOculta, intentos));
@@ -94,7 +94,7 @@ public class PeticionAhorcado extends Thread{
 		       						else {//sino la añade
 		       							palabraOculta= modificarOculta(palabraOculta,palabra,letra,numLetras);
 		       							if(palabraOculta.equals(palabra)) {	//si ya has acertado la palabra
-		       								out.writeBytes(mensajeGanar(letra, palabraOculta));
+		       								out.writeBytes(mensajeGanarLetra(letra, palabraOculta));
 		       								out.flush();
 		       							}
 		       							else {	//si faltan letras por adivinar
@@ -106,7 +106,7 @@ public class PeticionAhorcado extends Thread{
 		       					else {
 		       						intentos--;
 		       						if(intentos==0) {//Si gastamos los intentos el juego termina
-		       							out.writeBytes(mensajePerder(letra, palabra, intentos));
+		       							out.writeBytes(mensajePerderLetra(letra, palabra, intentos));
 		       							out.flush();
 		       						}else {	//aun quedan intentos, el juego continua
 		       							out.writeBytes(mensajeLetraIncorrecta(letra, palabraOculta, intentos));
@@ -137,7 +137,6 @@ public class PeticionAhorcado extends Thread{
 		
 	}
 	
-	
 	private String mensajeLetraYaEsta(String letra, String palabraOculta, Integer intentos) {
 		return("La letra " + letra + " ya está. Tienes " + intentos + " intentos. La palabra oculta es: "+palabraOculta + "\n");
 	}
@@ -146,11 +145,15 @@ public class PeticionAhorcado extends Thread{
 		return("La palabra " + letra + " es correcta.	¡¡HAS GANADO!!\n");
 	}
 	
-	private String mensajeGanar(String letra, String palabraOculta) {
+	private String mensajeGanarLetra(String letra, String palabraOculta) {
 		return("La letra " + letra + " es correcta. La palabra oculta es: "+palabraOculta + ".	¡¡HAS GANADO!!\n");
 	}
 	
-	private String mensajePerder(String letra, String palabra, Integer intentos) {
+	private String mensajePerderPalabra(String letra, String palabra, Integer intentos) {
+		return("La palabra " + letra + " es incorrecta. ¡¡Lo siento. Has perdido!! La palabra es: " + palabra + "\n");
+	}
+	
+	private String mensajePerderLetra(String letra, String palabra, Integer intentos) {
 		return("La letra " + letra + " es incorrecta. ¡¡Lo siento. Has perdido!! La palabra es: " + palabra + "\n");
 	}
 	
@@ -186,8 +189,6 @@ public class PeticionAhorcado extends Thread{
 			return false;
 		}
 	}
-	
-	
 	
 	public String palabraOcultaConGuiones(String palabra, int numLetras) {
 		String palabraOculta="";
