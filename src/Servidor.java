@@ -1,7 +1,4 @@
-import java.io.DataInputStream;
 import java.io.IOException;
-import java.io.OutputStreamWriter;
-import java.io.Writer;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.concurrent.ExecutorService;
@@ -15,7 +12,6 @@ public class Servidor {
 		try(ServerSocket ss = new ServerSocket(8000)){
 			System.out.println("Servidor funcionando...");
 			while(true) {
-				
 				try{
 					Socket s = ss.accept();
 					PeticionAhorcado pa =new PeticionAhorcado(s);		
@@ -31,6 +27,7 @@ public class Servidor {
 //					e.printStackTrace();
 				}
 			}
+			//cerrar el pool de hilos en el catch
 		}
 		catch (IOException e){
 			e.printStackTrace();

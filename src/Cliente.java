@@ -23,8 +23,9 @@ public class Cliente {
 		    
 		    while(!salir){
 		    	   System.out.println("\n--- MENÚ ---");
-		           System.out.println("1. Iniciar el juego.");
-		           System.out.println("2. Salir");
+		           System.out.println("1. Obtener una palabra aleatoria (1 jugador).");
+		           System.out.println("2. Escribir palabra y adivinarla (2 jugadores).");
+		           System.out.println("3. Salir");
 		           
 		           System.out.print("Escribe una opción: ");
 		           opcion = teclado.readLine();
@@ -78,6 +79,49 @@ public class Cliente {
 		                    break;
 		               
 		               case "2":
+		            	   System.out.println("\n¡El juego ha comenzado! \n");
+		                   
+		                    long tiempoInicial1 = System.currentTimeMillis();
+		                    		       			
+		       				System.out.println(in.readLine());//1
+			       			String linea1 = in.readLine();//2
+			       			System.out.println(linea1);
+			       			
+			       			while(linea1!=null && !linea1.equals(" ")) {
+			       				String letra = teclado.readLine().toLowerCase(); //Transformamos la letra a minuscula.
+			       			
+			       				out.writeBytes(letra+"\n");//3
+			       				out.flush();
+			       				
+			       				System.out.println(in.readLine());//4
+			       				linea = in.readLine();
+			       				System.out.println(linea);
+			       			}
+			       			numPartidas++;
+			       			long tiempo1 = (System.currentTimeMillis() - tiempoInicial1)/1000;
+			       			System.out.println("Has tardado " + tiempo1 + " segundos.\n");
+			       			System.out.println("------------------------------------");
+			       			System.out.println("---- Ha terminado la partida :( ----");
+			       			System.out.println("------------------------------------");
+			       			//System.out.println("Has tardado " + tiempo + " segundos.");
+			       			//numPartidas++;
+			       			//long tiempo = (System.currentTimeMillis() - tiempoInicial)/1000;
+			       			if(mejorTiempo>tiempo1) {
+			       				mejorTiempo=tiempo1;
+			       			}
+			       			if(numPartidas==1) {
+			       				System.out.println("Llevas " + numPartidas + " partida jugada.");
+			       			}
+			       			else {
+			       				System.out.println("Llevas " + numPartidas + " partidas jugadas. Tu record es " + mejorTiempo + " segundos.");
+			       			}
+			       			//System.out.println("Tu record es: " + mejorTiempo);
+			       			System.out.println("Puedes volver a jugar si lo deseas.");
+			       			
+		                    break;
+		            	   
+		               case "3":	      
+		            	   System.out.println("\nHasta pronto!!");
 		                   salir=true;
 		                   break;
 		               default:

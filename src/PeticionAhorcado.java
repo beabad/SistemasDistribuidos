@@ -14,10 +14,13 @@ import java.util.Scanner;
 public class PeticionAhorcado extends Thread{
 	
 	private Socket s;
+	private static List<String> usuarios=new ArrayList();
 	
 	public PeticionAhorcado(Socket s) {
 		super();
-		this.s = s;
+		this.s=s;
+		String datos=s.getLocalAddress().toString()+" "+s.getLocalPort();
+		usuarios.add(datos);		
 	}
 	
 	public void run() {
@@ -28,7 +31,7 @@ public class PeticionAhorcado extends Thread{
 		{
 			boolean salir = false;
 		    String opcion;
-		    
+		    int intentos = 5;
 		    List<String> palabras = crearLista(br);
 
 		    while(!salir){
@@ -37,97 +40,115 @@ public class PeticionAhorcado extends Thread{
 		           //if(Integer.valueOf(opcion)==1) {
 		           switch(opcion.trim()){
 		               case "1":
-		       			
 		       			Random random = new Random();
 		       			int indice = random.nextInt(palabras.size());
-		       			String palabra = palabras.get(indice).toLowerCase();//Transformamos la letra a miniscula.
+		       			String palabra = palabras.get(indice).toLowerCase();//Obtenemos la palabra random en minisculas.
 
-		       			//String palabra = teclado.readLine().toLowerCase();
-		       			int intentos = 5;
+		       			//String palabra = teclado.readLine().toLowerCase();		       			
 		       			int numLetras = palabra.length();
 		       			int numEspacios= numEspacios(palabra,numLetras);
 		       			String palabraOculta = palabraOcultaConGuiones(palabra, numLetras);
 		       			
-		       			
 		       			out.writeBytes("La palabra a adivinar tiene " + (numLetras-numEspacios) + " letras. Tienes " + intentos + " intentos. La palabra oculta es: "+palabraOculta+"\n");//1
 		       			out.flush();
-		       			
-		       			while (palabraOculta.contains("-") && intentos>0) {
-		       				
-		       				out.writeBytes("Introduce una letra o la palabra:\n");//2
-		       				out.flush();
-		       				String letra = in.readLine();//3
-       								       				
-       						if(igualTamaño(palabra, letra)) {
-		       					
-       							if(palabra.equals(letra)) {
-       								palabraOculta=modificarOcultaEntera(palabraOculta,palabra,numLetras);
-		       						out.writeBytes(mensajeGanarPalabra(letra, palabra));
-		       						out.flush();
-		       					}
-		       					else {
-		       						intentos--;
-		       						if(intentos==0) {//Si gastamos los intentos el juego termina
-		       							out.writeBytes(mensajePerderPalabra(letra, palabra, intentos));
-		       							out.flush();
-		       						}else {	//aun quedan intentos, el juego continua
-		       							out.writeBytes(mensajePalabraIncorrecta(letra, palabraOculta, intentos));
-		       							out.flush();
-		       						}
-		       					}
-		       				}
-		       				
-		       				else if(unaLetra(letra)) {//hay que introducir solo una letra
-		       					
-		       					if(palabra.contains(letra)) {
-		       						
-		       						if(palabraOculta.contains(letra)) {//Vemos si la letra está en la palabra.
-		       							intentos--;
-		       							if(intentos==0) {//Si gastamos los intentos el juego termina
-			       							out.writeBytes(mensajePerderLetra(letra, palabra, intentos));
-			       							out.flush();
-			       						}else {	//aun quedan intentos, el juego continua
-			       							out.writeBytes(mensajeLetraYaEsta(letra, palabraOculta, intentos));
-			       							out.flush();
-			       						}
-		       						}
-		       						else {//sino la añade
-		       							palabraOculta= modificarOculta(palabraOculta,palabra,letra,numLetras);
-		       							if(palabraOculta.equals(palabra)) {	//si ya has acertado la palabra
-		       								out.writeBytes(mensajeGanarLetra(letra, palabraOculta));
-		       								out.flush();
-		       							}
-		       							else {	//si faltan letras por adivinar
-		       								out.writeBytes(mensajeLetraCorrecta(letra, palabraOculta, intentos));
-		       								out.flush();
-		       							}
-		       						}		
-		       					}
-		       					else {
-		       						intentos--;
-		       						if(intentos==0) {//Si gastamos los intentos el juego termina
-		       							out.writeBytes(mensajePerderLetra(letra, palabra, intentos));
-		       							out.flush();
-		       						}else {	//aun quedan intentos, el juego continua
-		       							out.writeBytes(mensajeLetraIncorrecta(letra, palabraOculta, intentos));
-		       							out.flush();
-		       						}
-		       					}
-		       				}
-		       				else {
-		       					out.writeBytes("ERROR: Introduce otra letra.\n");
-		       					out.flush();
-		       				}
-		       			}
-		       			out.writeBytes(" \n");
-		       			out.flush();
+		       			jugada(palabra, palabraOculta, intentos, numLetras, out, in);
+//		       			while (palabraOculta.contains("-") && intentos>0) {
+//		       				
+//		       				out.writeBytes("Introduce una letra o la palabra:\n");//2
+//		       				out.flush();
+//		       				String letra = in.readLine();//3
+//       								       				
+//       						if(igualTamaño(palabra, letra)) {
+//		       					
+//       							if(palabra.equals(letra)) {
+//       								palabraOculta=modificarOcultaEntera(palabraOculta,palabra,numLetras);
+//		       						out.writeBytes(mensajeGanarPalabra(letra, palabra));
+//		       						out.flush();
+//		       					}
+//		       					else {
+//		       						intentos--;
+//		       						if(intentos==0) {//Si gastamos los intentos el juego termina
+//		       							out.writeBytes(mensajePerderPalabra(letra, palabra, intentos));
+//		       							out.flush();
+//		       						}else {	//aun quedan intentos, el juego continua
+//		       							out.writeBytes(mensajePalabraIncorrecta(letra, palabraOculta, intentos));
+//		       							out.flush();
+//		       						}
+//		       					}
+//		       				}
+//		       				
+//		       				else if(unaLetra(letra)) {//hay que introducir solo una letra
+//		       					
+//		       					if(palabra.contains(letra)) {
+//		       						
+//		       						if(palabraOculta.contains(letra)) {//Vemos si la letra está en la palabra.
+//		       							intentos--;
+//		       							if(intentos==0) {//Si gastamos los intentos el juego termina
+//			       							out.writeBytes(mensajePerderLetra(letra, palabra, intentos));
+//			       							out.flush();
+//			       						}else {	//aun quedan intentos, el juego continua
+//			       							out.writeBytes(mensajeLetraYaEsta(letra, palabraOculta, intentos));
+//			       							out.flush();
+//			       						}
+//		       						}
+//		       						else {//sino la añade
+//		       							palabraOculta= modificarOculta(palabraOculta,palabra,letra,numLetras);
+//		       							if(palabraOculta.equals(palabra)) {	//si ya has acertado la palabra
+//		       								out.writeBytes(mensajeGanarLetra(letra, palabraOculta));
+//		       								out.flush();
+//		       							}
+//		       							else {	//si faltan letras por adivinar
+//		       								out.writeBytes(mensajeLetraCorrecta(letra, palabraOculta, intentos));
+//		       								out.flush();
+//		       							}
+//		       						}		
+//		       					}
+//		       					else {
+//		       						intentos--;
+//		       						if(intentos==0) {//Si gastamos los intentos el juego termina
+//		       							out.writeBytes(mensajePerderLetra(letra, palabra, intentos));
+//		       							out.flush();
+//		       						}else {	//aun quedan intentos, el juego continua
+//		       							out.writeBytes(mensajeLetraIncorrecta(letra, palabraOculta, intentos));
+//		       							out.flush();
+//		       						}
+//		       					}
+//		       				}
+//		       				else {
+//		       					out.writeBytes("ERROR: Introduce otra letra.\n");
+//		       					out.flush();
+//		       				}
+//		       			}
+//		       			out.writeBytes(" \n");
+//		       			out.flush();
 		            	
 		            	break;
 		            	   
 		               case "2":
+		            	   //EscribirPalabra esc = new EscribirPalabra(s);
+		            	   //esc.start();
+		            	   Scanner sc = new Scanner(System.in) ;
+		            	   System.out.print("Introducir palabra: ");
+		       			   palabra = sc.nextLine();	
+		       			   //System.out.println("La palabra a enviar es" + palabra);
+		            	   //out.writeBytes(palabra + "\n");
+		            	   //out.flush();
+		            	   
+		            	   numLetras = palabra.length();
+			       			numEspacios= numEspacios(palabra,numLetras);
+			       			palabraOculta = palabraOcultaConGuiones(palabra, numLetras);
+			       			
+			       			out.writeBytes("La palabra a adivinar tiene " + (numLetras-numEspacios) + " letras. Tienes " + intentos + " intentos. La palabra oculta es: "+palabraOculta+"\n");//1
+			       			out.flush();
+			       			jugada(palabra, palabraOculta, intentos, numLetras, out, in);
+			       			System.out.println("Aqui OK");
+			       			
+			       			
+		            	   break;
+		            	   
+		               case "3":
 		            	   salir=true;
 		            	   break;
-			
 		           }
 		    }
 			
@@ -136,6 +157,79 @@ public class PeticionAhorcado extends Thread{
 		} 
 		
 	}
+	
+	private void jugada(String palabra, String palabraOculta, int intentos, int numLetras, DataOutputStream out, DataInputStream in) {
+		try {
+			while (palabraOculta.contains("-") && intentos>0) {
+				out.writeBytes("Introduce una letra o la palabra:\n");//2
+				out.flush();
+				String letra = in.readLine();//3
+				if(igualTamaño(palabra, letra)) {
+					if(palabra.equals(letra)) {
+						palabraOculta=modificarOcultaEntera(palabraOculta,palabra,numLetras);
+						out.writeBytes(mensajeGanarPalabra(letra, palabra));
+						out.flush();
+					}
+					else {
+						intentos--;
+						if(intentos==0) {//Si gastamos los intentos el juego termina
+							out.writeBytes(mensajePerderPalabra(letra, palabra, intentos));
+							out.flush();
+						}else {	//aun quedan intentos, el juego continua
+							out.writeBytes(mensajePalabraIncorrecta(letra, palabraOculta, intentos));
+							out.flush();
+						}
+					}
+				}
+				
+				else if(unaLetra(letra)) {//hay que introducir solo una letra
+					
+					if(palabra.contains(letra)) {
+						if(palabraOculta.contains(letra)) {//Vemos si la letra está en la palabra.
+							intentos--;
+							if(intentos==0) {//Si gastamos los intentos el juego termina
+								out.writeBytes(mensajePerderLetra(letra, palabra, intentos));
+								out.flush();
+							}else {	//aun quedan intentos, el juego continua
+								out.writeBytes(mensajeLetraYaEsta(letra, palabraOculta, intentos));
+								out.flush();
+							}
+						}
+						else {//sino la añade
+							palabraOculta= modificarOculta(palabraOculta,palabra,letra,numLetras);
+							if(palabraOculta.equals(palabra)) {	//si ya has acertado la palabra
+								out.writeBytes(mensajeGanarLetra(letra, palabraOculta));
+								out.flush();
+							}
+							else {	//si faltan letras por adivinar
+								out.writeBytes(mensajeLetraCorrecta(letra, palabraOculta, intentos));
+								out.flush();
+							}
+						}		
+					}
+					else {
+						intentos--;
+						if(intentos==0) {//Si gastamos los intentos el juego termina
+							out.writeBytes(mensajePerderLetra(letra, palabra, intentos));
+							out.flush();
+						}else {	//aun quedan intentos, el juego continua
+							out.writeBytes(mensajeLetraIncorrecta(letra, palabraOculta, intentos));
+							out.flush();
+						}
+					}
+				}
+				else {
+					out.writeBytes("ERROR: Introduce otra letra.\n");
+					out.flush();
+				}
+			}
+			out.writeBytes(" \n");
+			out.flush();
+		} catch(IOException e) {
+			e.printStackTrace();
+		}	
+	}
+	
 	
 	private String mensajeLetraYaEsta(String letra, String palabraOculta, Integer intentos) {
 		return("La letra " + letra + " ya está. Tienes " + intentos + " intentos. La palabra oculta es: "+palabraOculta + "\n");
@@ -172,7 +266,7 @@ public class PeticionAhorcado extends Thread{
 	}
 	
 	
-	public boolean igualTamaño(String palabra, String palabraOculta) {
+	private boolean igualTamaño(String palabra, String palabraOculta) {
 		if(palabra.length() == palabraOculta.length()) {
 			return true;
 		}
@@ -181,7 +275,7 @@ public class PeticionAhorcado extends Thread{
 		}
 	}
 	
-	public boolean unaLetra(String letra) {
+	private boolean unaLetra(String letra) {
 		if(letra.length() == 1 && Character.isLetter(letra.charAt(0))) {
 			return true;
 		}
@@ -190,7 +284,7 @@ public class PeticionAhorcado extends Thread{
 		}
 	}
 	
-	public String palabraOcultaConGuiones(String palabra, int numLetras) {
+	private String palabraOcultaConGuiones(String palabra, int numLetras) {
 		String palabraOculta="";
 		for(int i=0; i<numLetras; i++) {
 				if(palabra.charAt(i) == (" ").charAt(0)){
@@ -203,7 +297,7 @@ public class PeticionAhorcado extends Thread{
 		return palabraOculta;
 	}
 	
-	public Integer numEspacios(String palabra, int numLetras) {
+	private Integer numEspacios(String palabra, int numLetras) {
 		int numEspacios=0;
 		for(int i=0; i<numLetras; i++) {
 			if(palabra.charAt(i) == (" ").charAt(0)){
@@ -213,7 +307,7 @@ public class PeticionAhorcado extends Thread{
 		return numEspacios;
 	}
 	
-	public List<String> crearLista (BufferedReader br){
+	private List<String> crearLista (BufferedReader br){
 		
 		List<String> palabras = new ArrayList<String>(); //creamos una lista con las palabras del fichero palabra.txt
 		try {
@@ -229,7 +323,7 @@ public class PeticionAhorcado extends Thread{
 		return palabras;
 	}
 	
-	public String modificarOcultaEntera(String palabraOculta, String palabra, int numLetras) {
+	private String modificarOcultaEntera(String palabraOculta, String palabra, int numLetras) {
 		StringBuilder sb1 = new StringBuilder(palabraOculta);
 			for(int i=0; i<numLetras; i++) {
 				for(int j=0; j<numLetras; j++) {
@@ -242,7 +336,7 @@ public class PeticionAhorcado extends Thread{
 		return palabraOculta;
 	}
 	
-	public String modificarOculta(String palabraOculta, String palabra, String letra, int numLetras) {
+	private String modificarOculta(String palabraOculta, String palabra, String letra, int numLetras) {
 		StringBuilder sb = new StringBuilder(palabraOculta);
 			for(int i=0; i<numLetras; i++) {
 				if(palabra.charAt(i) == letra.charAt(0)){
