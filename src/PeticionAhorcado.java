@@ -57,10 +57,11 @@ public class PeticionAhorcado extends Thread{
 		       			break;
 		            	   
 		               case "2":
+		            	   jugadores.add(s);
+	            		   
+							if (jugadores.size() == 2) {
 		            	   
-		            	   //try(ServerSocket ss =  new ServerSocket(8080);){
-		            		   //while(true) {
-		            	   //System.out.println("entra");
+		            	   
 		            			   try(Socket s1 = ss.accept();
 		            					DataInputStream in1 = new DataInputStream(s1.getInputStream());
 		            					DataOutputStream out1 = new DataOutputStream(s1.getOutputStream());
@@ -85,27 +86,28 @@ public class PeticionAhorcado extends Thread{
 		       		       				out1.flush();
 		       		       				jugada(palabra, palabraOculta, intentos, numLetras, out1, in1);
 				            	  // }
-		            		   //}
+		            		   
 		            	   	}catch (IOException e){
 	           					e.printStackTrace();
 	           				}
-		            		
+							}
 		            		break; 
 		            
 		               case "3":
 		            	   jugadores.add(s);
 	            		   
 							if (jugadores.size() == 2) {
-								//Lista juego = new Lista(jugadores);
-								//juego.start();
-								try (
-										DataOutputStream out2 = new DataOutputStream(jugadores.get(0).getOutputStream());
-										DataOutputStream out1 = new DataOutputStream(jugadores.get(1).getOutputStream());
-										DataInputStream in2 = new DataInputStream(jugadores.get(0).getInputStream());
-										DataInputStream in1 = new DataInputStream(jugadores.get(1).getInputStream()))
+								Socket s2 = jugadores.get(0);
+								Socket s1 = jugadores.get(1);
+								try (//Socket s1 = ss.accept();
+										DataOutputStream out2 = new DataOutputStream(s2.getOutputStream());
+										DataOutputStream out1 = new DataOutputStream(s1.getOutputStream());
+										DataInputStream in2 = new DataInputStream(s2.getInputStream());
+										DataInputStream in1 = new DataInputStream(s1.getInputStream()))
 								{
 									out2.writeBytes("¡Eres el cliente 1! \n");
 									out1.writeBytes("¡Eres el cliente 2! \n");
+									//System.out.println(in2.readLine());
 									palabra = obtenerPalabra(palabras);   
 									numLetras = palabra.length();
 									numEspacios= numEspacios(palabra,numLetras);
@@ -114,8 +116,8 @@ public class PeticionAhorcado extends Thread{
 									out2.flush();
 									out1.writeBytes("La palabra a adivinar tiene " + (numLetras-numEspacios) + " letras. Tienes " + intentos + " intentos. La palabra oculta es: "+palabraOculta+"\n");//1
 						  			out1.flush();
-						  			//jugada(palabra, palabraOculta, intentos, numLetras, out2, in2);
-						  			//jugada(palabra, palabraOculta, intentos, numLetras, out1, in1);
+						  			jugada(palabra, palabraOculta, intentos, numLetras, out2, in2);
+						  			jugada(palabra, palabraOculta, intentos, numLetras, out1, in1);
 						  			
 						  			
 						  			/*try {
