@@ -1,7 +1,13 @@
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
+import java.io.PrintStream;
+import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.Scanner;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+
 
 
 public class Cliente {
@@ -42,6 +48,7 @@ public class Cliente {
 		       				System.out.println(in.readLine());//1
 			       			linea = in.readLine();//2
 			       			System.out.println(linea);
+			       			System.out.println("entra");
 			       			while(linea!=null && !linea.equals(" ")) {
 			       				letra = teclado.readLine().toLowerCase(); //Transformamos la letra a minuscula.
 			       				out.writeBytes(letra+"\n");//3
@@ -59,18 +66,27 @@ public class Cliente {
 		                    break;
 		               
 		               case "2":
+		            	   System.out.println("\n¡El juego ha comenzado! Es necesario que ejecutes otro cliente. \n");
 		            	   try(Socket s1 = new Socket("localhost", 8000);
 		            		   DataInputStream in1 = new DataInputStream(s1.getInputStream());
 		            		   DataOutputStream out1 = new DataOutputStream(s1.getOutputStream());
+		            			   //PrintStream out1 = new PrintStream(s1.getOutputStream());
+		            			   //PrintStream out2 = new PrintStream(s.getOutputStream());
 		            			DataInputStream teclado1 = new DataInputStream(System.in);
 		            		){
-		            		   System.out.println("\n¡El juego ha comenzado! \n");
+		            		   //System.out.println("\n¡El juego ha comenzado! \n");
+		            		   
 		            		   tiempoInicial = System.currentTimeMillis();
-			            	   System.out.println(in.readLine());
+		            		   //System.out.println("entra");
+		            		   System.out.println(in.readLine());
+		            		   //out2.print(in.readLine());
+		            		   System.out.println("entra2");
 		            		   String palabraMandar = teclado.readLine();
 		            		   out.writeBytes(palabraMandar+"\n");
 		            		   out.flush();
-		            		   System.out.println(in1.readLine());
+		            		   
+		            		   System.out.println(in.readLine());
+		            		   System.out.println("entra3");
 				       			linea = in1.readLine();//2
 				       			System.out.println(linea);
 				       			while(linea!=null && !linea.equals(" ")) {
@@ -88,30 +104,31 @@ public class Cliente {
 		            	   
 		                    break;
 		               case "3":
-		            	   try( Socket s1 = new Socket("localhost", 7000);
-			            	   DataInputStream in1 = new DataInputStream(s1.getInputStream());
-			            	   DataOutputStream out1 = new DataOutputStream(s1.getOutputStream());
-			            	   DataInputStream teclado1 = new DataInputStream(System.in);
-			            	){
-		            		   	System.out.println("\n¡El juego ha comenzado! \n");
+		            	   System.out.println("\n¡El juego ha comenzado! \n");
+	            		   	tiempoInicial = System.currentTimeMillis();
+	            		   	System.out.println(in.readLine());
+	            		   	System.out.println(in.readLine());
+	            		   	linea = in.readLine();//2
+			       			System.out.println(linea);
+			       			System.out.println("entra");
+			       			while(linea!=null && !linea.equals(" ")) {
+			       				letra = teclado.readLine().toLowerCase(); //Transformamos la letra a minuscula.
+			       				out.writeBytes(letra+"\n");//3
+			       				out.flush();
+			       				System.out.println("hola");
+			       				System.out.println(in.readLine());//4
+			       				linea = in.readLine();
+			       				System.out.println(linea);
+			       			}
+			       			tiempo = mostrarFinPartida(tiempoInicial);
+			       			if(mejorTiempo>tiempo) {
+			       				mejorTiempo=tiempo;
+			       			}
+			       			mejorTiempo(mejorTiempo, numPartidas);
+		            		   	
 			                    
-		            		   	//Jugador 1
-		            		   	tiempoInicial = System.currentTimeMillis();
-		            		   	System.out.println(in.readLine());
-		            		   	linea = in.readLine();//2
-				       			System.out.println(linea);
-				       			while(linea!=null && !linea.equals(" ")) {
-				       				letra = teclado.readLine().toLowerCase(); //Transformamos la letra a minuscula.
-				       				out.writeBytes(letra+"\n");//3
-				       				out.flush();
-				       				System.out.println(in.readLine());//4
-				       				linea = in.readLine();
-				       				System.out.println(linea);
-				       			}
-				       			tiempo = mostrarFinPartida(tiempoInicial);
-				       			
 				       			//Jugador 2
-				       			long tiempoInicial1 = System.currentTimeMillis();
+				       			/*long tiempoInicial1 = System.currentTimeMillis();
 				       			System.out.println(in.readLine());//1
 				       			String linea1 = in.readLine();//2
 				       			System.out.println(linea1);
@@ -128,14 +145,12 @@ public class Cliente {
 				       			out.writeLong(tiempo);	//manda tiempo el jug1
 		            		   	out.flush();
 		            		   	out1.writeLong(tiempo1); //manda tiempo el jug2
-		            		   	out1.flush();
+		            		   	out1.flush();*/
 		            		   	
-		            		   	System.out.println(in.readLine());		//jug1 recibe si gana o pierde
-		            		   	System.out.println(in1.readLine());		//jug2 recibe si gana o pierde
+		            		   	//System.out.println(in.readLine());		//jug1 recibe si gana o pierde
+		            		   	//System.out.println(in1.readLine());		//jug2 recibe si gana o pierde
 		            		   	
-			            	   }catch (IOException e){
-		           					e.printStackTrace();
-		           			   }
+			            	   
 		            	   
 		                    break;
 		               case "4":	      
