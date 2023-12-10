@@ -1,16 +1,7 @@
-import java.io.BufferedReader;
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.net.ServerSocket;
+package trabajo;
+import java.io.*;
 import java.net.Socket;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Random;
-import java.util.Scanner;
+import java.util.*;
 
 public class PeticionAhorcado extends Thread{
 	
@@ -34,30 +25,38 @@ public class PeticionAhorcado extends Thread{
 		    String opcion,opcion1;
 		    int intentos = 5;
 		    List<String> palabras = crearLista(br);
-
 		    while(!salir){
 		           opcion = in.readLine();
 		           opcion1 = in1.readLine();
-		           
 		           switch(opcion.trim()){
 		               case "1":
 		            	   if (opcion1.equals(opcion)) {
 		            		   out.writeBytes("¡Eres el cliente que introduce una palabra! Introduce una letra o palabra: \n");
 		            		   out.flush();
 		            		   String palabra = in.readLine().toLowerCase();
-		            		   out.writeBytes(" \n");//Para que el otro cliente no muestre null al acabar
 		            		   out.writeBytes(" \n");
-		            		   
+		            		   out.writeBytes(" \n");
 		            		   out1.writeBytes("¡Eres el cliente que adivina una palabra! Pon OK:\n");
 		            		   out1.flush();
 		            		   String linea = in1.readLine();
-    		       				
 		            		   int numLetras = palabra.length();
 		            		   int numEspacios= numEspacios(palabra,numLetras);
 		            		   String palabraOculta = palabraOcultaConGuiones(palabra, numLetras);
 		            		   out1.writeBytes("La palabra a adivinar tiene " + (numLetras-numEspacios) + " letras. Tienes " + intentos + " intentos. La palabra oculta es: "+palabraOculta+"\n");//1
 		            		   out1.flush();
+		            		   long tiempoInicial = System.currentTimeMillis();
 		            		   jugada(palabra, palabraOculta, intentos, numLetras, out1, in1);
+		            		   long tiempo = (System.currentTimeMillis() - tiempoInicial)/1000;
+		            		   out.writeBytes("\n");
+		            		   out.writeBytes("------------------------------------\n");
+		            		   out.writeBytes("---- Ha terminado la partida :( ----\n");
+		            		   out.writeBytes("------------------------------------\n");
+		            		   out.flush();
+		            		   out1.writeBytes("Has tardado " + tiempo + " segundos.\n");
+		            		   out1.writeBytes("------------------------------------\n");
+		            		   out1.writeBytes("---- Ha terminado la partida :( ----\n");
+		            		   out1.writeBytes("------------------------------------\n");
+		            		   out1.flush();
 		            		   salir=true;
 		            	   }
 		            	   break; 
@@ -65,40 +64,39 @@ public class PeticionAhorcado extends Thread{
 		               case "2":		            	   
 		            	   if (opcion1.equals(opcion)) {
 								out.writeBytes("¡Eres el cliente 1! \n");
-								out.flush();
 								out1.writeBytes("¡Eres el cliente 2! \n");
+								out.writeBytes("Introduce tu nombre: \n");
 								out.flush();
+								out1.writeBytes("Introduce tu nombre: \n");
+								out1.flush();
+								String nom1 = in.readLine();
+								String nom2 = in1.readLine();
 								
 								String palabra = obtenerPalabra(palabras);   
 								int numLetras = palabra.length();
 								int numEspacios= numEspacios(palabra,numLetras);
 								String palabraOculta = palabraOcultaConGuiones(palabra, numLetras);
-								out.writeBytes("La palabra a adivinar tiene " + (numLetras-numEspacios) + " letras. Tienes " + intentos + " intentos. La palabra oculta es: "+palabraOculta+"\n");//1
-								out.flush();
 								out1.writeBytes("La palabra a adivinar tiene " + (numLetras-numEspacios) + " letras. Tienes " + intentos + " intentos. La palabra oculta es: "+palabraOculta+"\n");//1
 						  		out1.flush();
+								out.writeBytes("La palabra a adivinar tiene " + (numLetras-numEspacios) + " letras. Tienes " + intentos + " intentos. La palabra oculta es: "+palabraOculta+"\n");//1
+								out.flush();
 						  		jugada(palabra, palabraOculta, intentos, numLetras, out, in);
 						  		jugada(palabra, palabraOculta, intentos, numLetras, out1, in1);
-						  		
-						  		
-						  		
 						  		long tiempo, tiempo1;
        		       				tiempo = in.readLong();	        //recibe tiempo el jug1
        		       				tiempo1 = in1.readLong();		//recibe tiempo el jug2
        		       				if(tiempo < tiempo1) {          //manda o que gana o que pierde a cada jugador
-       		       					out.writeBytes("Has ganado Cliente 1!! Tu adversario ha tardado " +  tiempo1 + " segundos. \n");
+       		       					out.writeBytes(nom1 + " , has ganado!! Tu adversario ha tardado " +  tiempo1 + " segundos. \n");
        		       					out.flush();
-       		       					out1.writeBytes("Has perdido Cliente 2:( Tu adversario ha tardado " +  tiempo + " segundos. \n");
+       		       					out1.writeBytes(nom2 +  " , has perdido :( Tu adversario ha tardado " +  tiempo + " segundos. \n");
        		       					out1.flush();
        		       				}
        		       				else {
-	       		       				out.writeBytes("Has perdido Cliente 1:( Tu adversario ha tardado " +  tiempo1 + " segundos.  \n");
+	       		       				out.writeBytes(nom1 + " , has perdido :( Tu adversario ha tardado " +  tiempo1 + " segundos.  \n");
        		       					out.flush();
-       		       					out1.writeBytes("Has ganado Cliente 2!! Tu adversario ha tardado " +  tiempo + " segundos.  \n");
+       		       					out1.writeBytes(nom2 + " , has ganado!!! Tu adversario ha tardado " +  tiempo + " segundos.  \n");
        		       					out1.flush();
        		       				}
-						  		
-						  		
 						  		salir=true;
 		            	   }
 		            	   break;
@@ -201,11 +199,11 @@ public class PeticionAhorcado extends Thread{
 	}
 	
 	private String mensajeGanarPalabra(String letra, String palabraOculta) {
-		return("La palabra " + letra + " es correcta.	¡¡HAS GANADO!!\n");
+		return("La palabra " + letra + " es correcta.	¡¡LO HAS CONSEGUIDO!!\n");
 	}
 	
 	private String mensajeGanarLetra(String letra, String palabraOculta) {
-		return("La letra " + letra + " es correcta. La palabra oculta es: "+palabraOculta + ".	¡¡HAS GANADO!!\n");
+		return("La letra " + letra + " es correcta. La palabra oculta es: "+palabraOculta + ".	¡¡LO HAS CONSEGUIDO!!\n");
 	}
 	
 	private String mensajePerderPalabra(String letra, String palabra, Integer intentos) {

@@ -1,13 +1,8 @@
-import java.io.DataInputStream;
-import java.io.IOException;
-import java.io.OutputStreamWriter;
-import java.io.Writer;
-import java.net.ServerSocket;
-import java.net.Socket;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
+package trabajo;
+
+import java.io.*;
+import java.net.*;
+import java.util.concurrent.*;
 
 public class Servidor {
 
@@ -31,6 +26,6 @@ public class Servidor {
 			e.printStackTrace();
 		}
 		
-			}
+	}
 
 }
