@@ -25,6 +25,9 @@ public class Servidor {
 		catch (IOException e){
 			e.printStackTrace();
 		}
+		finally {
+			pool.shutdown();
+		}
 		
 	}
 
