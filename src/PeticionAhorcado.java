@@ -45,7 +45,7 @@ public class PeticionAhorcado extends Thread{
 		            		   out1.writeBytes("La palabra a adivinar tiene " + (numLetras-numEspacios) + " letras. Tienes " + intentos + " intentos. La palabra oculta es: "+palabraOculta+"\n");//1
 		            		   out1.flush();
 		            		   long tiempoInicial = System.currentTimeMillis();
-		            		   jugada(palabra, palabraOculta, intentos, numLetras, out1, in1);
+		            		   boolean ganar = jugada(palabra, palabraOculta, intentos, numLetras, out1, in1);
 		            		   long tiempo = (System.currentTimeMillis() - tiempoInicial)/1000;
 		            		   out.writeBytes("\n");
 		            		   out.writeBytes("------------------------------------\n");
@@ -80,23 +80,44 @@ public class PeticionAhorcado extends Thread{
 						  		out1.flush();
 								out.writeBytes("La palabra a adivinar tiene " + (numLetras-numEspacios) + " letras. Tienes " + intentos + " intentos. La palabra oculta es: "+palabraOculta+"\n");//1
 								out.flush();
-						  		jugada(palabra, palabraOculta, intentos, numLetras, out, in);
-						  		jugada(palabra, palabraOculta, intentos, numLetras, out1, in1);
+								boolean ganar =jugada(palabra, palabraOculta, intentos, numLetras, out, in);
+								boolean ganar1 =jugada(palabra, palabraOculta, intentos, numLetras, out1, in1);
 						  		long tiempo, tiempo1;
        		       				tiempo = in.readLong();	        //recibe tiempo el jug1
        		       				tiempo1 = in1.readLong();		//recibe tiempo el jug2
-       		       				if(tiempo < tiempo1) {          //manda o que gana o que pierde a cada jugador
-       		       					out.writeBytes(nom1 + " , has ganado!! Tu adversario ha tardado " +  tiempo1 + " segundos. \n");
-       		       					out.flush();
-       		       					out1.writeBytes(nom2 +  " , has perdido :( Tu adversario ha tardado " +  tiempo + " segundos. \n");
-       		       					out1.flush();
+       		       				if(ganar == true && ganar1==true) {
+	       		       				if(tiempo < tiempo1) {          //manda o que gana o que pierde a cada jugador
+	       		       					out.writeBytes(nom1 + " , has ganado!! Tu adversario ha tardado " +  tiempo1 + " segundos. \n");
+	       		       					out.flush();
+	       		       					out1.writeBytes(nom2 +  " , has perdido :( Tu adversario ha tardado " +  tiempo + " segundos. \n");
+	       		       					out1.flush();
+	       		       				}
+	       		       				else {
+		       		       				out.writeBytes(nom1 + " , has perdido :( Tu adversario ha tardado " +  tiempo1 + " segundos.  \n");
+	       		       					out.flush();
+	       		       					out1.writeBytes(nom2 + " , has ganado!!! Tu adversario ha tardado " +  tiempo + " segundos.  \n");
+	       		       					out1.flush();
+	       		       				}
        		       				}
-       		       				else {
-	       		       				out.writeBytes(nom1 + " , has perdido :( Tu adversario ha tardado " +  tiempo1 + " segundos.  \n");
-       		       					out.flush();
-       		       					out1.writeBytes(nom2 + " , has ganado!!! Tu adversario ha tardado " +  tiempo + " segundos.  \n");
-       		       					out1.flush();
+       		       				if(ganar == false && ganar1 == true) {
+	       		       				out.writeBytes(nom1 + " , has perdido :( Tu adversario ha acertado la palabra.  \n");
+	   		       					out.flush();
+	   		       					out1.writeBytes(nom2 + " , has ganado!!! Tu adversario no ha acertado la palabra.  \n");
+	   		       					out1.flush();
        		       				}
+	       		       			if(ganar == true && ganar1 == false) {
+	       		       				out1.writeBytes(nom2 + " , has perdido :( Tu adversario ha acertado la palabra.  \n");
+	       		       				out1.flush();
+	       		       				out.writeBytes(nom1 + " , has ganado!!! Tu adversario no ha acertado la palabra.  \n");
+	       		       				out.flush();
+	   		       				}
+		       		       		if(ganar == false && ganar1 == false) {
+	       		       				out1.writeBytes(nom2 + " , habeis perdido :( Tu adversario tampoco ha acertado la palabra.  \n");
+	       		       				out1.flush();
+	       		       				out.writeBytes(nom1 + " , habeis perdido :( Tu adversario tampoco ha acertado la palabra.  \n");
+	       		       				out.flush();
+	   		       				}
+       		       				
 						  		salir=true;
 		            	   }
 		            	   break;
@@ -121,7 +142,8 @@ public class PeticionAhorcado extends Thread{
 	}	
 		
 		
-	private void jugada(String palabra, String palabraOculta, int intentos, int numLetras, DataOutputStream out, DataInputStream in) {
+	private boolean jugada(String palabra, String palabraOculta, int intentos, int numLetras, DataOutputStream out, DataInputStream in) {
+		boolean ganar = false;
 		try {
 			while (palabraOculta.contains("-") && intentos>0) {
 				out.writeBytes("Introduce una letra o la palabra:\n");//2
@@ -130,6 +152,7 @@ public class PeticionAhorcado extends Thread{
 				if(igualTamaño(palabra, letra)) {
 					if(palabra.equals(letra)) {
 						palabraOculta=modificarOcultaEntera(palabraOculta,palabra,numLetras);
+						ganar=true;
 						out.writeBytes(mensajeGanarPalabra(letra, palabra));
 						out.flush();
 					}
@@ -146,7 +169,6 @@ public class PeticionAhorcado extends Thread{
 				}
 				
 				else if(unaLetra(letra)) {//hay que introducir solo una letra
-					
 					if(palabra.contains(letra)) {
 						if(palabraOculta.contains(letra)) {//Vemos si la letra está en la palabra.
 							intentos--;
@@ -161,6 +183,7 @@ public class PeticionAhorcado extends Thread{
 						else {//sino la añade
 							palabraOculta= modificarOculta(palabraOculta,palabra,letra,numLetras);
 							if(palabraOculta.equals(palabra)) {	//si ya has acertado la palabra
+								ganar=true;
 								out.writeBytes(mensajeGanarLetra(letra, palabraOculta));
 								out.flush();
 							}
@@ -190,7 +213,8 @@ public class PeticionAhorcado extends Thread{
 			out.flush();
 		} catch(IOException e) {
 			e.printStackTrace();
-		}	
+		}
+		return ganar;	
 	}
 	
 	
